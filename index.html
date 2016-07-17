@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>Find the NBA player who scored the most in all-star games</title>
+	<meta name="description" content="Find the NBA player who scored the most in all-star games">
+	<meta name="author" content="">
+	<meta name="generator" content="slidify" />
+	
+	<!-- LOAD STYLE SHEETS -->
+	<link rel="stylesheet" href="libraries/frameworks/html5slides/default/styles.css">
+	<link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />  <link rel="stylesheet" href = "assets/css/ribbons.css">
+  
+</head>
+<body style='display: none'>
+	<section class='slides layout-regular template-regular'>
+     <article class="" id="slide-1" style="background:;">
+  <h3>Find the NBA player who scored the most in all-star games</h3>
+  <pre><code class="r">#### date: 
+date()
+</code></pre>
+
+<pre><code>## [1] &quot;Sun Jul 17 14:23:41 2016&quot;
+</code></pre>
+
+</article>
+
+<article class="" id="slide-2" style="background:;">
+  <h3>Introduction</h3>
+  <h4>This is to introduce an application that finds the player who scored the most in the NBA all-star games. The application can be found at <a href="https://jqix.shinyapps.io/shiny_allstar/">https://jqix.shinyapps.io/shiny_allstar/</a></h4>
+
+<h4>To use this application, choose the time period using selection input box for the beginning year and the ending year, and the page will show the player who had the highest score during that time period.</h4>
+
+</article>
+
+<article class="class" id="id" style="background:;">
+  <h3>server.R</h3>
+  <pre><code class="r">player &lt;- read.csv(&quot;player_allstar.csv&quot;)
+player$pts &lt;- as.numeric(as.character(player$pts))
+
+shinyServer(
+  function(input, output) {
+    getsubyear &lt;- reactive ({
+      subset(player, (year &gt;= input$yearFrom &amp; year &lt;= input$yearTo))
+    })
+
+    output$name &lt;- renderText({
+      subyear &lt;- getsubyear()
+      highscore &lt;- max(subyear$pts, na.rm=TRUE)
+      maxPlayer &lt;- subset(subyear, pts == highscore &amp; !is.na(pts))
+      paste(maxPlayer$firstname, maxPlayer$lastname)
+    })
+
+    output$score &lt;- renderText({
+      subyear &lt;- getsubyear()
+      max(subyear$pts, na.rm=TRUE)
+    })
+  }
+)
+</code></pre>
+
+</article>
+
+<article class="" id="slide-4" style="background:;">
+  <h3>ui.R</h3>
+  <pre><code class="r"># Define UI for highest score player application
+shinyUI(pageWithSidebar(
+  headerPanel(&quot;Find the player with the highest score in NBA all star games&quot;),
+  sidebarPanel(
+    selectInput(&quot;yearFrom&quot;, label = &quot;From&quot;,
+      choices = c(1950:2009),
+      selected = 1950),
+    selectInput(&quot;yearTo&quot;, label = &quot;To&quot;,
+      choices = c(1950:2009),
+      selected = 2009)
+  ),
+  mainPanel(
+    helpText(&quot;Data Source: www.databaseBasketball.com&quot;),
+    h3(&#39;Player Name: &#39;, textOutput(&quot;name&quot;)),
+    h3(&#39;Score: &#39;, textOutput(&quot;score&quot;))
+  )
+))
+</code></pre>
+
+</article>
+
+<article class="" id="slide-5" style="background:;">
+  <h3>Acknowledgement</h3>
+  <h4>The data set generously provided by <a href="www.databaseBasketball.com">www.databaseBasketball.com</a></h4>
+
+</article>
+
+  </section>
+</body>
+  <!-- LOAD JAVASCRIPTS  -->
+	<script src='libraries/frameworks/html5slides/default/slides.js'></script>
+	<!-- LOAD HIGHLIGHTER JS FILES -->
+	<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+	 
+	</html>
